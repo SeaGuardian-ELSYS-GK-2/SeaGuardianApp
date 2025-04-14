@@ -2,12 +2,19 @@ import SwiftUI
 
 @main
 struct SeaGuardianAppApp: App {
-    var settings = SettingsModel()
+    let settings: SettingsModel
+    let webSocket: WebSocketManager
+    
+    init() {
+        self.settings = SettingsModel()
+        self.webSocket = WebSocketManager(settings: settings)
+    }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(settings)
+                .environment(webSocket)
         }
     }
 }

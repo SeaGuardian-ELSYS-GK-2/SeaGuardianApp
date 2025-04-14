@@ -2,7 +2,8 @@ import SwiftUI
 
 struct SettingsHost: View {
     @Environment(\.editMode) var editMode
-    @Environment(SettingsModel.self) var settingsModel
+    @Environment(SettingsModel.self) var settings
+    @Environment(WebSocketManager.self) var webSocket
 
     @State private var draftSettings = SettingsModel()
 
@@ -11,7 +12,7 @@ struct SettingsHost: View {
             HStack {
                 if editMode?.wrappedValue == .active {
                     Button("Cancel", role: .cancel) {
-                        draftSettings = settingsModel.copy()
+                        draftSettings = settings.copy()
                         editMode?.animation().wrappedValue = .inactive
                     }
                 }
@@ -24,11 +25,16 @@ struct SettingsHost: View {
             } else {
                 SettingsEditor(settings: draftSettings)
                     .onAppear {
-                        draftSettings = settingsModel.copy()
+                        draftSettings = settings.copy()
                     }
                     .onDisappear {
-                        settingsModel.host = draftSettings.host
-                        settingsModel.port = draftSettings.port
+                        let settingsChanged = draftSettings != settings
+                        
+                        if settingsChanged {
+                            settings.host = draftSettings.host
+                            settings.port = draftSettings.port
+                            webSocket.reconnect()
+                        }
                     }
             }
         }
@@ -37,6 +43,9 @@ struct SettingsHost: View {
 }
 
 #Preview {
+    let settings = SettingsModel()
+    let webSocket = WebSocketManager(settings: settings)
     SettingsHost()
-        .environment(SettingsModel())
+        .environment(settings)
+        .environment(webSocket)
 }

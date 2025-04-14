@@ -6,8 +6,6 @@ struct SeaGuardianMap: View {
     @State private var longitude: Double = 0.0
     @State private var cameraPosition: MapCameraPosition = .automatic
 
-    private let webSocketManager = WebSocketManager()
-
     var body: some View {
         VStack {
             Map(position: $cameraPosition) {
@@ -32,22 +30,6 @@ struct SeaGuardianMap: View {
             Text("Longitude: \(longitude, specifier: "%.6f")")
                 .font(.headline)
                 .foregroundColor(.red)
-        }
-        .onAppear {
-            webSocketManager.connect()
-            webSocketManager.onReceiveCoordinates = { lat, lng in
-                self.latitude = lat
-                self.longitude = lng
-                self.cameraPosition = .region(
-                    MKCoordinateRegion(
-                        center: CLLocationCoordinate2D(latitude: lat, longitude: lng),
-                        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-                    )
-                )
-            }
-        }
-        .onDisappear {
-            webSocketManager.disconnect()
         }
     }
 }

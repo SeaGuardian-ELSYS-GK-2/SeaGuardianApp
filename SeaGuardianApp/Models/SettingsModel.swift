@@ -22,3 +22,9 @@ class SettingsModel {
         return copy
     }
 }
+
+extension SettingsModel: Equatable {
+    static func == (lhs: SettingsModel, rhs: SettingsModel) -> Bool {
+        return lhs.host == rhs.host && lhs.port == rhs.port
+    }
+}
