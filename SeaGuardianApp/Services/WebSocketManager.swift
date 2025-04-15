@@ -11,6 +11,12 @@ class WebSocketManager: NSObject {
     var errorMessage: String? = nil
 
     private var settings: SettingsModel
+    
+    private let init_message = URLSessionWebSocketTask.Message.string("""
+    {
+        "type": "viewer"
+    }
+    """)
 
     init(settings: SettingsModel) {
         self.settings = settings
@@ -35,6 +41,11 @@ class WebSocketManager: NSObject {
         webSocket = session?.webSocketTask(with: url)
         webSocket?.resume()
         isConnected = true
+        webSocket?.send(init_message) { error in
+            if let error = error {
+                print("Failed to send viewer init message: \(error)")
+            }
+        }
         receive()
     }
 
@@ -73,15 +84,13 @@ class WebSocketManager: NSObject {
     }
 
     private func handleMessage(_ text: String) {
-        guard let data = text.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Double],
-              let lat = json["lat"], let lng = json["lng"] else {
-            print("Invalid JSON: \(text)")
-            return
-        }
-
-        DispatchQueue.main.async {
-            self.onReceiveCoordinates?(lat, lng)
+        if let data = text.data(using: .utf8),
+           let jsonObject = try? JSONSerialization.jsonObject(with: data),
+           let prettyData = try? JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted),
+           let prettyString = String(data: prettyData, encoding: .utf8) {
+            print("Received JSON:\n\(prettyString)")
+        } else {
+            print("Received text: \(text)")
         }
     }
 }
