@@ -44,7 +44,8 @@ struct SettingsHost: View {
 
 #Preview {
     let settings = SettingsModel()
-    let webSocket = WebSocketManager(settings: settings)
+    let vessels = VesselsModel()
+    let webSocket = WebSocketManager(settings: settings, vessels: vessels)
     SettingsHost()
         .environment(settings)
         .environment(webSocket)

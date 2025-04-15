@@ -32,8 +32,10 @@ struct ContentView: View {
 
 #Preview {
     let settings = SettingsModel()
-    let webSocket = WebSocketManager(settings: settings)
-    return ContentView()
+    let vessels = VesselsModel()
+    let webSocket = WebSocketManager(settings: settings, vessels: vessels)
+    ContentView()
         .environment(settings)
+        .environment(vessels)
         .environment(webSocket)
 }

@@ -52,8 +52,10 @@ struct SettingsSummary: View {
 
 #Preview {
     let settings = SettingsModel()
-    let webSocket = WebSocketManager(settings: settings)
-    return SettingsSummary()
+    let vessels = VesselsModel()
+    let webSocket = WebSocketManager(settings: settings, vessels: vessels)
+    SettingsSummary()
         .environment(settings)
+        .environment(vessels)
         .environment(webSocket)
 }

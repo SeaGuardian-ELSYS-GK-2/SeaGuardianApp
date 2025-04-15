@@ -5,12 +5,12 @@ class WebSocketManager: NSObject {
     private var webSocket: URLSessionWebSocketTask?
     private var session: URLSession?
 
-    var onReceiveCoordinates: ((Double, Double) -> Void)?
     var isConnected: Bool = false
     var didDisconnectManually: Bool = false
     var errorMessage: String? = nil
 
     private var settings: SettingsModel
+    private var vessels: VesselsModel
     
     private let init_message = URLSessionWebSocketTask.Message.string("""
     {
@@ -18,8 +18,9 @@ class WebSocketManager: NSObject {
     }
     """)
 
-    init(settings: SettingsModel) {
+    init(settings: SettingsModel, vessels: VesselsModel) {
         self.settings = settings
+        self.vessels = vessels
         super.init()
     }
 
@@ -84,13 +85,59 @@ class WebSocketManager: NSObject {
     }
 
     private func handleMessage(_ text: String) {
-        if let data = text.data(using: .utf8),
-           let jsonObject = try? JSONSerialization.jsonObject(with: data),
-           let prettyData = try? JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted),
+        guard let data = text.data(using: .utf8) else {
+            print("⚠️ Could not convert text to Data: \(text)")
+            return
+        }
+        
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            print("⚠️ JSON deserialization failed: \(text)")
+            return
+        }
+        
+        if let prettyData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
            let prettyString = String(data: prettyData, encoding: .utf8) {
             print("Received JSON:\n\(prettyString)")
-        } else {
-            print("Received text: \(text)")
+        }
+
+        guard let type = json["type"] as? String else {
+            print("⚠️ Missing or invalid 'type' field in message: \(json)")
+            return
+        }
+
+        switch type {
+        case "full_update":
+            guard let vesselsDict = json["vessels"] as? [String: [String: Any]] else {
+                print("⚠️ 'vessels' field missing or invalid in full_update: \(json)")
+                return
+            }
+            for (id, data) in vesselsDict {
+                guard let lat = data["lat"] as? Double,
+                      let lng = data["lng"] as? Double else {
+                    print("⚠️ Missing lat/lng in vessel data for ID \(id): \(data)")
+                    continue
+                }
+                vessels.vessels[id] = Vessel(id: id, latitude: lat, longitude: lng)
+            }
+
+        case "vessel_update":
+            guard let update = json["data"] as? [String: Any] else {
+                print("⚠️ 'data' field missing or invalid in vessel_update: \(json)")
+                return
+            }
+            guard let id = update["id"] as? String else {
+                print("⚠️ Missing 'id' in vessel_update: \(update)")
+                return
+            }
+            guard let lat = update["lat"] as? Double,
+                  let lng = update["lng"] as? Double else {
+                print("⚠️ Missing lat/lng in vessel_update for ID \(id): \(update)")
+                return
+            }
+            vessels.vessels[id] = Vessel(id: id, latitude: lat, longitude: lng)
+
+        default:
+            print("⚠️ Unknown message type '\(type)': \(json)")
         }
     }
 }
