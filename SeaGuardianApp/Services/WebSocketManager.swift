@@ -117,7 +117,11 @@ class WebSocketManager: NSObject {
                     print("⚠️ Missing lat/lng in vessel data for ID \(id): \(data)")
                     continue
                 }
-                vessels.vessels[id] = Vessel(id: id, latitude: lat, longitude: lng)
+                guard let timestamp = data["timestamp"] as? Double else {
+                    print("⚠️ Missing timestamp in vessel data for ID \(id): \(data)")
+                    continue
+                }
+                vessels.vessels[id] = Vessel(id: id, timestamp: timestamp, latitude: lat, longitude: lng)
             }
 
         case "vessel_update":
@@ -134,7 +138,11 @@ class WebSocketManager: NSObject {
                 print("⚠️ Missing lat/lng in vessel_update for ID \(id): \(update)")
                 return
             }
-            vessels.vessels[id] = Vessel(id: id, latitude: lat, longitude: lng)
+            guard let timestamp = update["timestamp"] as? Double else {
+                print("⚠️ Missing timestamp in vessel_update for ID \(id): \(update)")
+                return
+            }
+            vessels.vessels[id] = Vessel(id: id, timestamp: timestamp, latitude: lat, longitude: lng)
 
         default:
             print("⚠️ Unknown message type '\(type)': \(json)")
