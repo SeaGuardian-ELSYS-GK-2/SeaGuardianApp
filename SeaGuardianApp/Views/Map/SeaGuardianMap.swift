@@ -2,16 +2,19 @@ import SwiftUI
 import MapKit
 
 struct SeaGuardianMap: View {
-    @State private var latitude: Double = 0.0
-    @State private var longitude: Double = 0.0
+    @Environment(VesselsModel.self) var vessels
     @State private var cameraPosition: MapCameraPosition = .automatic
 
     var body: some View {
         VStack {
             Map(position: $cameraPosition) {
-                Marker("", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
-                MapCircle(center: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), radius: 20)
-                    .foregroundStyle(.red.opacity(0.3))
+                ForEach(vessels.vessels.values.sorted(by: { $0.id < $1.id })) { vessel in
+                    Annotation("Vessel \(vessel.id)", coordinate: CLLocationCoordinate2D(latitude: vessel.latitude, longitude: vessel.longitude)) {
+                            Image(systemName: "ferry.fill")
+                                .resizable()
+                                .frame(width: 32, height: 32)
+                            }
+                }
             }
             .mapStyle(.standard)
             .mapControls {
@@ -19,23 +22,12 @@ struct SeaGuardianMap: View {
                 MapCompass()
                 MapScaleView()
             }
-            .frame(height: 300)
-            .cornerRadius(10)
-            .padding()
-
-            Text("Latitude: \(latitude, specifier: "%.6f")")
-                .font(.headline)
-                .foregroundColor(.blue)
-
-            Text("Longitude: \(longitude, specifier: "%.6f")")
-                .font(.headline)
-                .foregroundColor(.red)
         }
     }
 }
 
-struct SeaGuardianMap_Previews: PreviewProvider {
-    static var previews: some View {
-        SeaGuardianMap()
-    }
+#Preview {
+    let vessels = VesselsModel.preview
+    SeaGuardianMap()
+        .environment(vessels)
 }
