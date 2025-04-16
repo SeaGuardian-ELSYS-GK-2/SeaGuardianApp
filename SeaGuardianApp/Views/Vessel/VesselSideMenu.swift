@@ -6,7 +6,6 @@ struct VesselSideMenu: View {
         VStack(alignment: .leading) {
             Text("Vessels")
                 .font(.title)
-                .padding(.top, 60)
             
             VesselList()
             Spacer()

@@ -9,11 +9,8 @@ struct ContentView: View {
         ZStack(alignment: .leading) {
             NavigationStack {
                 VStack {
-                    Text("Live Coordinates")
-                        .font(.title)
-                        .padding()
+                    SeaGuardianMap()
                 }
-                .navigationTitle("SeaGuardian")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button {
