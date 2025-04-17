@@ -3,26 +3,33 @@ import SwiftUI
 struct SettingsSummary: View {
     @Environment(SettingsModel.self) var settings
     @Environment(WebSocketManager.self) var webSocket
-    
-    @State private var showingError = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 settingRow(label: "host", value: settings.host)
                 settingRow(label: "port", value: "\(settings.port)")
-                settingRow(label: "status", value: webSocket.isConnected ? "🟢 Connected" : "🔴 Disconnected")
+                settingRow(label: "status", value: connectionStatusText)
 
-                if !webSocket.isConnected {
+                if case .disconnected = webSocket.connectionState {
                     Button("Connect") {
                         webSocket.connect()
                     }
                     .buttonStyle(.borderedProminent)
                     .padding(.top, 8)
                 }
-                else {
+
+                if case .connected = webSocket.connectionState {
                     Button("Disconnect") {
                         webSocket.disconnect()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.top, 8)
+                }
+                
+                if isConnectionFailed {
+                    Button("Try Again") {
+                        webSocket.connect()
                     }
                     .buttonStyle(.borderedProminent)
                     .padding(.top, 8)
@@ -31,16 +38,35 @@ struct SettingsSummary: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
-        .onChange(of: webSocket.errorMessage) {
-            if !webSocket.didDisconnectManually {
-                showingError = webSocket.errorMessage != nil
-            }
-        }
-        .alert("Connection Error", isPresented: $showingError) {
+        .alert("Connection Error", isPresented: .constant(isConnectionFailed)) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text(webSocket.errorMessage ?? "Unknown error")
+            if case .failed(let reason) = webSocket.connectionState {
+                Text(reason)
+            } else {
+                Text("Unknown error")
+            }
         }
+    }
+
+    private var connectionStatusText: String {
+        switch webSocket.connectionState {
+        case .disconnected:
+            return "🔴 Disconnected"
+        case .connecting:
+            return "🟡 Connecting..."
+        case .connected:
+            return "🟢 Connected"
+        case .failed:
+            return "🔴 Failed"
+        }
+    }
+
+    private var isConnectionFailed: Bool {
+        if case .failed = webSocket.connectionState {
+            return true
+        }
+        return false
     }
 
     @ViewBuilder
@@ -48,14 +74,4 @@ struct SettingsSummary: View {
         Text("\(label): ") +
         Text(value).foregroundStyle(.secondary)
     }
-}
-
-#Preview {
-    let settings = SettingsModel()
-    let vessels = VesselsModel()
-    let webSocket = WebSocketManager(settings: settings, vessels: vessels)
-    SettingsSummary()
-        .environment(settings)
-        .environment(vessels)
-        .environment(webSocket)
 }

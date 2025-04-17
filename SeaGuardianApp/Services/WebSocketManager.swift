@@ -1,13 +1,18 @@
 import Foundation
 
+enum WebSocketConnectionState: Equatable {
+    case disconnected
+    case connecting
+    case connected
+    case failed(String)
+}
+
 @Observable
 class WebSocketManager: NSObject {
     private var webSocket: URLSessionWebSocketTask?
     private var session: URLSession?
 
-    var isConnected: Bool = false
-    var didDisconnectManually: Bool = false
-    var errorMessage: String? = nil
+    var connectionState: WebSocketConnectionState = .disconnected
 
     private var settings: SettingsModel
     private var vessels: VesselsModel
@@ -29,33 +34,44 @@ class WebSocketManager: NSObject {
             print("WebSocket already exists. Use reconnect() if needed.")
             return
         }
+        
+        connectionState = .connecting
 
         guard let url = URL(string: "ws://\(settings.host):\(settings.port)") else {
-            errorMessage = "Invalid URL"
-            isConnected = false
+            connectionState = .failed("Invalid URL")
             return
         }
 
-        didDisconnectManually = false
-        errorMessage = nil
         session = URLSession(configuration: .default, delegate: self, delegateQueue: .main)
         webSocket = session?.webSocketTask(with: url)
         webSocket?.resume()
-        isConnected = true
-        webSocket?.send(init_message) { error in
+        
+        let timeoutItem = DispatchWorkItem { [weak self] in
+            self?.connectionState = .failed("Timeout: init message not sent in time. Most likely the host is not reachable.")
+            self?.webSocket?.cancel()
+            self?.webSocket = nil
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: timeoutItem)
+
+        webSocket?.send(init_message) { [weak self] error in
+            timeoutItem.cancel()
+
             if let error = error {
-                print("Failed to send viewer init message: \(error)")
+                self?.connectionState = .failed("Send failed: \(error.localizedDescription)")
+                self?.webSocket = nil
+            } else {
+                self?.connectionState = .connected
+                self?.receive()
             }
         }
-        receive()
     }
 
     func disconnect() {
+        connectionState = .disconnected
         webSocket?.cancel(with: .goingAway, reason: nil)
         webSocket = nil
         session = nil
-        isConnected = false
-        didDisconnectManually = true
     }
     
     func reconnect() {
@@ -75,9 +91,8 @@ class WebSocketManager: NSObject {
                 }
                 self?.receive()
             case .failure(let error):
-                self?.isConnected = false
-                if self?.didDisconnectManually == false {
-                    self?.errorMessage = "Connection failed: \(error.localizedDescription)"
+                if self?.connectionState != .disconnected {
+                    self?.connectionState = .failed("Connection failed: \(error.localizedDescription)")
                     self?.webSocket = nil
                 }
             }
@@ -151,7 +166,22 @@ class WebSocketManager: NSObject {
 }
 
 extension WebSocketManager: URLSessionWebSocketDelegate {
-    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
-        isConnected = false
+    func urlSession(_ session: URLSession,
+                    webSocketTask: URLSessionWebSocketTask,
+                    didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
+                    reason: Data?) {
+        
+        // Only treat it as an error if we didn't disconnect manually
+        if connectionState != .disconnected {
+            let reasonString: String
+            
+            if let reason = reason, let string = String(data: reason, encoding: .utf8) {
+                reasonString = string
+            } else {
+                reasonString = "WebSocket closed unexpectedly with code: \(closeCode.rawValue)"
+            }
+
+            connectionState = .failed(reasonString)
+        }
     }
 }
