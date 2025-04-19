@@ -192,7 +192,18 @@ class WebSocketManager: NSObject {
                 print("⚠️ Missing timestamp in vessel_update for ID \(id): \(update)")
                 return
             }
-            vessels.vessels[id] = Vessel(id: id, timestamp: timestamp, latitude: lat, longitude: lng)
+
+            // Preserve existing crew dictionary if it exists
+            let existingCrew = vessels.vessels[id]?.crew ?? [:]
+
+            // Update only the dynamic values
+            vessels.vessels[id] = Vessel(
+                id: id,
+                timestamp: timestamp,
+                latitude: lat,
+                longitude: lng,
+                crew: existingCrew
+            )
 
         default:
             print("⚠️ Unknown message type '\(type)': \(json)")
