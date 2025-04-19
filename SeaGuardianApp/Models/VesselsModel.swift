@@ -21,13 +21,13 @@ struct Vessel: Identifiable {
     var latitude: Double
     var longitude: Double
     
-    var crew: [CrewMember] = []
+    var crew: [String: CrewMember] = [:]
 }
 
 struct CrewMember: Identifiable {
     var id: String
     var name: String
     var overBoard: Bool
-    var latitude: Double
-    var longitude: Double
+    var latitude: Double?
+    var longitude: Double?
 }

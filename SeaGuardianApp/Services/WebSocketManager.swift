@@ -128,15 +128,50 @@ class WebSocketManager: NSObject {
             }
             for (id, data) in vesselsDict {
                 guard let lat = data["lat"] as? Double,
-                      let lng = data["lng"] as? Double else {
-                    print("⚠️ Missing lat/lng in vessel data for ID \(id): \(data)")
+                      let lng = data["lng"] as? Double,
+                      let timestamp = data["timestamp"] as? Double else {
+                    print("⚠️ Incomplete vessel data for ID \(id): \(data)")
                     continue
                 }
-                guard let timestamp = data["timestamp"] as? Double else {
-                    print("⚠️ Missing timestamp in vessel data for ID \(id): \(data)")
-                    continue
+
+                guard let crewDict = data["crew"] as? [String: [String: Any]] else {
+                    print("⚠️ 'crew' field missing or not a dictionary in vessel_update: \(data)")
+                    return
                 }
-                vessels.vessels[id] = Vessel(id: id, timestamp: timestamp, latitude: lat, longitude: lng)
+
+                var crewMap: [String: CrewMember] = [:]
+
+                for (cid, member) in crewDict {
+                    guard let name = member["name"] as? String,
+                          let overBoard = member["overBoard"] as? Bool else {
+                        print("⚠️ Missing required fields for crew member '\(cid)': \(member)")
+                        continue
+                    }
+
+                    let latitude = overBoard ? member["latitude"] as? Double : nil
+                    let longitude = overBoard ? member["longitude"] as? Double : nil
+
+                    if overBoard, latitude == nil || longitude == nil {
+                        print("⚠️ Overboard crew member '\(cid)' is missing lat/lng.")
+                        continue
+                    }
+
+                    crewMap[cid] = CrewMember(
+                        id: cid,
+                        name: name,
+                        overBoard: overBoard,
+                        latitude: latitude,
+                        longitude: longitude
+                    )
+                }
+
+                vessels.vessels[id] = Vessel(
+                    id: id,
+                    timestamp: timestamp,
+                    latitude: lat,
+                    longitude: lng,
+                    crew: crewMap
+                )
             }
 
         case "vessel_update":
