@@ -5,13 +5,17 @@ class VesselsModel {
     var vessels: [String: Vessel] = [:]
 }
 
-struct Vessel: Identifiable {
+struct Vessel: Identifiable, Equatable {
     var id: String
     var timestamp: Double
     var latitude: Double
     var longitude: Double
     
     var crew: [String: CrewMember] = [:]
+    
+    static func == (lhs: Vessel, rhs: Vessel) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 struct CrewMember: Identifiable {
@@ -34,7 +38,7 @@ extension VesselsModel {
             longitude: 10.3951,
             crew: [
                 "crew_1": CrewMember(id: "crew_1", name: "Alice", overBoard: false, latitude: nil, longitude: nil),
-                "crew_2": CrewMember(id: "crew_2", name: "Bob", overBoard: true, latitude: 63.4715, longitude: 10.4192)
+                "crew_2": CrewMember(id: "crew_2", name: "Bob", overBoard: true, latitude: 63.4675, longitude: 10.4192)
             ]
         )
 
@@ -45,7 +49,7 @@ extension VesselsModel {
             longitude: 11.421500,
             crew: [
                 "crew_1": CrewMember(id: "crew_1", name: "Knut", overBoard: true, latitude: 65.2315, longitude: 11.3392),
-                "crew_2": CrewMember(id: "crew_2", name: "Roger", overBoard: true, latitude: 65.4315, longitude: 11.5292)
+                "crew_2": CrewMember(id: "crew_2", name: "Roger", overBoard: true, latitude: 65.4315, longitude: 11.5792)
             ]
         )
 

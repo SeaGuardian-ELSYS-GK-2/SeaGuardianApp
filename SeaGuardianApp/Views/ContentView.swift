@@ -4,12 +4,13 @@ import MapKit
 struct ContentView: View {
     @State private var showingSettings = false
     @State private var isMenuOpen = false
-
+    @State private var selectedVessel: Vessel? = nil
+    
     var body: some View {
         ZStack(alignment: .leading) {
             NavigationStack {
                 VStack {
-                    SeaGuardianMap()
+                    SeaGuardianMap(selectedVessel: $selectedVessel)
                 }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -44,7 +45,12 @@ struct ContentView: View {
                     }
             }
 
-            VesselSideMenu()
+            VesselSideMenu(onVesselTap: { vessel in
+                selectedVessel = vessel
+                withAnimation {
+                    isMenuOpen = false
+                }
+            })
                 .frame(width: 300)
                 .offset(x: isMenuOpen ? 0 : -300)
                 .animation(.easeInOut(duration: 0.25), value: isMenuOpen)
@@ -54,8 +60,8 @@ struct ContentView: View {
 
 #Preview {
     let settings = SettingsModel()
-    let vessels = VesselsModel()
-//    let vessels = VesselsModel.preview
+//    let vessels = VesselsModel()
+    let vessels = VesselsModel.preview
     let webSocket = WebSocketManager(settings: settings, vessels: vessels)
     ContentView()
         .environment(settings)

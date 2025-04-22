@@ -2,6 +2,7 @@ import SwiftUI
 
 struct VesselList: View {
     @Environment(VesselsModel.self) var vesselsModel
+    var onVesselTap: (Vessel) -> Void
 
     var body: some View {
         List {
@@ -13,6 +14,9 @@ struct VesselList: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
+                .onTapGesture {
+                    onVesselTap(vessel)
+                }
             }
         }
         .navigationTitle("Vessels")
@@ -21,6 +25,6 @@ struct VesselList: View {
 
 
 #Preview {
-    VesselList()
+    VesselList(onVesselTap: { _ in })
         .environment(VesselsModel.preview)
 }

@@ -2,12 +2,15 @@ import SwiftUI
 
 
 struct VesselSideMenu: View {
+    var onVesselTap: (Vessel) -> Void
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Vessels")
                 .font(.title)
+                .padding(.leading)
             
-            VesselList()
+            VesselList(onVesselTap: onVesselTap)
             Spacer()
         }
         .frame(maxWidth: 300)
@@ -17,6 +20,6 @@ struct VesselSideMenu: View {
 
 
 #Preview {
-    VesselSideMenu()
+    VesselSideMenu(onVesselTap: { _ in })
         .environment(VesselsModel.preview)
 }
