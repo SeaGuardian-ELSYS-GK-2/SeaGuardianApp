@@ -4,6 +4,7 @@ import SwiftUI
 struct SideMenu: View {
     var onVesselTap: (Vessel) -> Void
     var onClose: () -> Void
+    var onCrewListRowTap: (CrewMember) -> Void = { _ in }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -21,7 +22,7 @@ struct SideMenu: View {
             }
             .padding(.vertical, 8)
 
-            CrewList()
+            CrewList(onRowTap: onCrewListRowTap)
             Spacer()
         }
         .frame(maxWidth: 300)

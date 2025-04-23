@@ -3,6 +3,7 @@ import SwiftUI
 struct CrewList: View {
     @Environment(VesselsModel.self) var vesselsModel
     @State private var showOnlyOverboard = false
+    var onRowTap: (CrewMember) -> Void
 
     var sortedVessels: [Vessel] {
         vesselsModel.vessels.values
@@ -51,7 +52,7 @@ struct CrewList: View {
 }
 
 #Preview {
-    CrewList()
+    CrewList(onRowTap: { _ in })
         .environment(VesselsModel.preview)
         .frame(maxWidth: 320)
         .padding()

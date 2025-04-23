@@ -1,11 +1,28 @@
 import SwiftUI
 import MapKit
 
+enum AnnotationType: Identifiable, Equatable {
+    case vessel(Vessel)
+    case crew(CrewMember)
+
+    var id: String {
+        switch self {
+        case .vessel(let vessel):
+            return "vessel_\(vessel.id)"
+        case .crew(let crew):
+            return "crew_\(crew.id)"
+        }
+    }
+    
+    static func == (lhs: AnnotationType, rhs: AnnotationType) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
 struct SeaGuardianMap: View {
     @Environment(VesselsModel.self) var vessels
-    @Binding var selectedVessel: Vessel?
+    @Binding var selectedAnnotation: AnnotationType?
     @State private var cameraPosition: MapCameraPosition = .automatic
-    @State private var lastRegion: MKCoordinateRegion? = nil
 
     var body: some View {
         VStack {
@@ -14,22 +31,17 @@ struct SeaGuardianMap: View {
                     Annotation("Vessel \(vessel.id)", coordinate: CLLocationCoordinate2D(latitude: vessel.latitude, longitude: vessel.longitude)) {
                         VesselAnnotationView(
                             vessel: vessel,
-                            isSelected: selectedVessel == vessel,
-                            onTap: {
-                                selectedVessel = (selectedVessel == vessel) ? nil : vessel
-                            }
+                            selectedAnnotation: $selectedAnnotation
                         )
                     }
 
-                    ForEach(vessel.crew.values.filter { $0.overBoard }) { crew in
-                        if let lat = crew.latitude, let lng = crew.longitude {
-                            Annotation(crew.name, coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng)) {
-                                VStack {
-                                    Image(systemName: "figure.pool.swim")
-                                        .resizable()
-                                        .frame(width: 20, height: 20)
-                                        .foregroundColor(.red)
-                                }
+                    ForEach(vessel.crew.values.filter { $0.overBoard }) { crewMember in
+                        if let lat = crewMember.latitude, let lng = crewMember.longitude {
+                            Annotation(crewMember.name, coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng)) {
+                                CrewMemberAnnotationView(
+                                    crewMember: crewMember,
+                                    selectedAnnotation: $selectedAnnotation
+                                )
                             }
                         }
                     }
@@ -42,31 +54,16 @@ struct SeaGuardianMap: View {
                 MapScaleView()
             }
         }
-        .onChange(of: selectedVessel) {
-            if let vessel = selectedVessel {
-                let newCenter = CLLocationCoordinate2D(latitude: vessel.latitude, longitude: vessel.longitude)
-                
-                if let region = lastRegion {
-                    // Use previous zoom level
-                    let newRegion = MKCoordinateRegion(center: newCenter, span: region.span)
-                    cameraPosition = .region(newRegion)
-                } else {
-                    // Fallback zoom level if we don't have one yet
-                    let fallbackRegion = MKCoordinateRegion(center: newCenter, latitudinalMeters: 25000, longitudinalMeters: 25000)
-                    cameraPosition = .region(fallbackRegion)
-                }
-            }
-        }
     }
 }
 
 #Preview {
     struct SeaGuardianMapPreviewWrapper: View {
-        @State private var selectedVessel: Vessel? = nil
+        @State private var selectedAnnotation: AnnotationType? = nil
         let vessels = VesselsModel.preview
 
         var body: some View {
-            SeaGuardianMap(selectedVessel: $selectedVessel)
+            SeaGuardianMap(selectedAnnotation: $selectedAnnotation)
                 .environment(vessels)
         }
     }

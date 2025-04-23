@@ -4,14 +4,14 @@ import MapKit
 struct ContentView: View {
     @State private var showingSettings = false
     @State private var isMenuOpen = true
-    @State private var selectedVessel: Vessel? = nil
+    @State private var selectedAnnotation: AnnotationType? = nil
     @State private var selectedCrewMember: CrewMember? = nil
     
     var body: some View {
         ZStack(alignment: .leading) {
             NavigationStack {
                 VStack {
-                    SeaGuardianMap(selectedVessel: $selectedVessel)
+                    SeaGuardianMap(selectedAnnotation: $selectedAnnotation)
                 }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -38,7 +38,7 @@ struct ContentView: View {
 
             SideMenu(
                 onVesselTap: { vessel in
-                    selectedVessel = vessel
+                    selectedAnnotation = .vessel(vessel)
                 },
                 onClose: {
                     withAnimation {
