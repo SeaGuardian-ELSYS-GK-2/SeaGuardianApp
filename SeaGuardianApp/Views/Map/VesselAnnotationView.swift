@@ -23,7 +23,7 @@ struct VesselAnnotationView: View {
                     .resizable()
                     .frame(width: 32, height: 32)
             }
-            .foregroundStyle(.primary)
+            .buttonStyle(.plain)
         }
     }
 }
