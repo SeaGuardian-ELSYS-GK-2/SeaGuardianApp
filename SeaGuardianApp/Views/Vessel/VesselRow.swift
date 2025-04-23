@@ -33,7 +33,7 @@ struct VesselRowView: View {
             if isExpanded {
                 ForEach(Array(vessel.crew.values)) { crewMember in
                     Divider()
-                    CrewMemberRowView(crewMember: crewMember)
+                    VesselCrewMemberRow(crewMember: crewMember)
                 }
                 .padding(.leading)
             }

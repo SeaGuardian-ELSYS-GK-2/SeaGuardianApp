@@ -1,7 +1,7 @@
 import SwiftUI
 
 
-struct CrewMemberRowView: View {
+struct VesselCrewMemberRow: View {
     var crewMember: CrewMember
     
     var body: some View {

@@ -20,7 +20,7 @@ struct ContentView: View {
                                 isMenuOpen.toggle()
                             }
                         } label: {
-                            Image(systemName: "line.horizontal.3")
+                            Image(systemName: "sidebar.left")
                         }
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -36,7 +36,7 @@ struct ContentView: View {
                 }
             }
 
-            VesselSideMenu(
+            SideMenu(
                 onVesselTap: { vessel in
                     selectedVessel = vessel
                 },
