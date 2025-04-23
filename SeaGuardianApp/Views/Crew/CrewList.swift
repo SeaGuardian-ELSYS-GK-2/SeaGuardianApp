@@ -32,16 +32,8 @@ struct CrewList: View {
                     ForEach(sortedVessels) { vessel in
                         Section(header: Text("Vessel \(vessel.id)")) {
                             let crewList = sortedCrew(for: vessel)
-                            ForEach(crewList) { member in
-                                HStack {
-                                    Text(member.name)
-                                    if member.overBoard {
-                                        Spacer()
-                                        Image(systemName: "exclamationmark.triangle.fill")
-                                            .foregroundColor(.orange)
-                                    }
-                                }
-                                
+                            ForEach(crewList) { crewMember in
+                                CrewMemberRow(crewMember: crewMember)
                             }
                         }
                     }
