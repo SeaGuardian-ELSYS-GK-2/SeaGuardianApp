@@ -7,7 +7,7 @@ struct VesselList: View {
     var body: some View {
         List {
             ForEach(vesselsModel.vessels.values.sorted(by: { $0.id < $1.id })) { vessel in
-                VesselRowView(vessel: vessel)
+                VesselRowView(vessel: vessel, onVesselTap: onVesselTap)
             }
         }
         .navigationTitle("Vessels")

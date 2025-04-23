@@ -5,6 +5,7 @@ struct SeaGuardianMap: View {
     @Environment(VesselsModel.self) var vessels
     @Binding var selectedVessel: Vessel?
     @State private var cameraPosition: MapCameraPosition = .automatic
+    @State private var lastRegion: MKCoordinateRegion? = nil
 
     var body: some View {
         VStack {
@@ -43,8 +44,17 @@ struct SeaGuardianMap: View {
         }
         .onChange(of: selectedVessel) {
             if let vessel = selectedVessel {
-                let coordinate = CLLocationCoordinate2D(latitude: vessel.latitude, longitude: vessel.longitude)
-                cameraPosition = .region(MKCoordinateRegion(center: coordinate, latitudinalMeters: 25000, longitudinalMeters: 25000))
+                let newCenter = CLLocationCoordinate2D(latitude: vessel.latitude, longitude: vessel.longitude)
+                
+                if let region = lastRegion {
+                    // Use previous zoom level
+                    let newRegion = MKCoordinateRegion(center: newCenter, span: region.span)
+                    cameraPosition = .region(newRegion)
+                } else {
+                    // Fallback zoom level if we don't have one yet
+                    let fallbackRegion = MKCoordinateRegion(center: newCenter, latitudinalMeters: 25000, longitudinalMeters: 25000)
+                    cameraPosition = .region(fallbackRegion)
+                }
             }
         }
     }

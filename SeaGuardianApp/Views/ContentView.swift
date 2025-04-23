@@ -5,6 +5,7 @@ struct ContentView: View {
     @State private var showingSettings = false
     @State private var isMenuOpen = true
     @State private var selectedVessel: Vessel? = nil
+    @State private var selectedCrewMember: CrewMember? = nil
     
     var body: some View {
         ZStack(alignment: .leading) {
