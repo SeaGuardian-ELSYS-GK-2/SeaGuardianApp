@@ -8,22 +8,22 @@ struct VesselAnnotationView: View {
 
     var body: some View {
         VStack(spacing: 4) {
-            if isSelected {
-                VesselDetailView(vessel: vessel)
-            }
-            else {
-                // Invisible box to reserve space
-                Rectangle()
-                    .fill(Color.clear)
-                    .frame(height: 80) // match expected height of VesselDetailView
-            }
+//            if isSelected {
+//                VesselDetailView(vessel: vessel)
+//            }
+//            else {
+//                // Invisible box to reserve space
+//                Rectangle()
+//                    .fill(Color.clear)
+//                    .frame(height: 80) // match expected height of VesselDetailView
+//            }
 
             Button(action: onTap) {
                 Image(systemName: "ferry.fill")
                     .resizable()
                     .frame(width: 32, height: 32)
-                    .foregroundColor(.black)
             }
+            .foregroundStyle(.primary)
         }
     }
 }

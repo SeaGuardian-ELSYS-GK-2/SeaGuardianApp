@@ -20,6 +20,7 @@ struct VesselList: View {
             }
         }
         .navigationTitle("Vessels")
+        .foregroundColor(.primary)
     }
 }
 

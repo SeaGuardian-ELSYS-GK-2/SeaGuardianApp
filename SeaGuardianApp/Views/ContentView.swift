@@ -3,7 +3,7 @@ import MapKit
 
 struct ContentView: View {
     @State private var showingSettings = false
-    @State private var isMenuOpen = false
+    @State private var isMenuOpen = true
     @State private var selectedVessel: Vessel? = nil
     
     var body: some View {
@@ -35,25 +35,19 @@ struct ContentView: View {
                 }
             }
 
-            if isMenuOpen {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation {
-                            isMenuOpen = false
-                        }
+            VesselSideMenu(
+                onVesselTap: { vessel in
+                    selectedVessel = vessel
+                },
+                onClose: {
+                    withAnimation {
+                        isMenuOpen = false
                     }
-            }
-
-            VesselSideMenu(onVesselTap: { vessel in
-                selectedVessel = vessel
-                withAnimation {
-                    isMenuOpen = false
                 }
-            })
-                .frame(width: 300)
-                .offset(x: isMenuOpen ? 0 : -300)
-                .animation(.easeInOut(duration: 0.25), value: isMenuOpen)
+            )
+            .frame(width: 300)
+            .offset(x: isMenuOpen ? 0 : -300)
+            .animation(.easeInOut(duration: 0.25), value: isMenuOpen)
         }
     }
 }
