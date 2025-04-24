@@ -18,13 +18,23 @@ struct Vessel: Identifiable, Equatable {
     }
 }
 
-struct CrewMember: Identifiable {
+@Observable
+class CrewMember: Identifiable {
     var id: String
     var name: String
     var overBoard: Bool
     var latitude: Double?
     var longitude: Double?
     var imgBase64: String?
+
+    init(id: String, name: String, overBoard: Bool, latitude: Double? = nil, longitude: Double? = nil, imgBase64: String? = nil) {
+        self.id = id
+        self.name = name
+        self.overBoard = overBoard
+        self.latitude = latitude
+        self.longitude = longitude
+        self.imgBase64 = imgBase64
+    }
 }
 
 

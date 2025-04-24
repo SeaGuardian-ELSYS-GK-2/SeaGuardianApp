@@ -196,17 +196,57 @@ class WebSocketManager: NSObject {
                 return
             }
 
-            // Preserve existing crew dictionary if it exists
-            let existingCrew = vessels.vessels[id]?.crew ?? [:]
-
-            // Update only the dynamic values
-            vessels.vessels[id] = Vessel(
+            // Start from an existing vessel or create a new one
+            var vessel = vessels.vessels[id] ?? Vessel(
                 id: id,
                 timestamp: timestamp,
                 latitude: lat,
                 longitude: lng,
-                crew: existingCrew
+                crew: [:]
             )
+
+            vessel.timestamp = timestamp
+            vessel.latitude = lat
+            vessel.longitude = lng
+
+            if let crewUpdates = update["crewupdates"] as? [String: [String: Any]] {
+                for (crewId, crewData) in crewUpdates {
+                    guard let overBoard = crewData["overBoard"] as? Bool else {
+                        print("⚠️ Missing or invalid 'overBoard' for crew \(crewId)")
+                        continue
+                    }
+
+                    var crewMember = vessel.crew[crewId] ?? CrewMember(
+                        id: crewId,
+                        name: "Unknown",
+                        overBoard: false,
+                        latitude: nil,
+                        longitude: nil,
+                        imgBase64: nil
+                    )
+
+                    crewMember.overBoard = overBoard
+
+                    if overBoard {
+                        guard let lat = crewData["latitude"] as? Double,
+                              let lng = crewData["longitude"] as? Double else {
+                            print("⚠️ Missing lat/lng for overBoard crew \(crewId)")
+                            continue
+                        }
+
+                        crewMember.latitude = lat
+                        crewMember.longitude = lng
+                    } else {
+                        crewMember.latitude = nil
+                        crewMember.longitude = nil
+                    }
+
+                    vessel.crew[crewId] = crewMember
+                }
+            }
+
+            // ✅ Final update to trigger SwiftUI change
+            vessels.vessels[id] = vessel
 
         default:
             print("⚠️ Unknown message type '\(type)': \(json)")

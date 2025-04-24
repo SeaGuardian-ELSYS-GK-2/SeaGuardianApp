@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CrewMemberRow: View {
-    var crewMember: CrewMember
+    @Bindable var crewMember: CrewMember
 
     var body: some View {
         HStack(spacing: 12) {
