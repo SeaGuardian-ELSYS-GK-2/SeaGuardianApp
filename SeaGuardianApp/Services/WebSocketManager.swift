@@ -155,13 +155,16 @@ class WebSocketManager: NSObject {
                         print("⚠️ Overboard crew member '\(cid)' is missing lat/lng.")
                         continue
                     }
+                    
+                    let imgBase64 = member["imgBase64"] as? String
 
                     crewMap[cid] = CrewMember(
                         id: cid,
                         name: name,
                         overBoard: overBoard,
                         latitude: latitude,
-                        longitude: longitude
+                        longitude: longitude,
+                        imgBase64: imgBase64
                     )
                 }
 
