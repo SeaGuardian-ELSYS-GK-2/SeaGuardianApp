@@ -28,22 +28,22 @@ struct ContentView: View {
                 .sheet(isPresented: $showingSettings) {
                     SettingsHost()
                 }
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        withAnimation {
-                            isMenuOpen.toggle()
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            withAnimation {
+                                isMenuOpen.toggle()
+                            }
+                        } label: {
+                            Image(systemName: "sidebar.left")
                         }
-                    } label: {
-                        Image(systemName: "sidebar.left")
                     }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingSettings = true
-                    } label: {
-                        Image(systemName: "gearshape")
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            showingSettings = true
+                        } label: {
+                            Image(systemName: "gearshape")
+                        }
                     }
                 }
             }
