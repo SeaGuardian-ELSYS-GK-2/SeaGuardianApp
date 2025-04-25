@@ -32,7 +32,7 @@ struct CrewMemberRow: View {
                 if crewMember.overBoard,
                    let lat = crewMember.latitude,
                    let lng = crewMember.longitude {
-                    Text(String(format: "(%.4f, %.4f)", lat, lng))
+                    Text(String(format: "(%.5f, %.5f)", lat, lng))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
