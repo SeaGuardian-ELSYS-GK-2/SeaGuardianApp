@@ -22,6 +22,7 @@ enum AnnotationType: Identifiable, Equatable {
 struct SeaGuardianMap: View {
     @Environment(VesselsModel.self) var vessels
     @Binding var selectedAnnotation: AnnotationType?
+    @Binding var focusedAnnotation: AnnotationType?
     @State private var cameraPosition: MapCameraPosition = .automatic
 
     var body: some View {
@@ -53,6 +54,20 @@ struct SeaGuardianMap: View {
                 MapCompass()
                 MapScaleView()
             }
+            .onChange(of: focusedAnnotation) {
+                if let annotation = focusedAnnotation {
+                    switch annotation {
+                    case .vessel(let vessel):
+                        let coordinate = CLLocationCoordinate2D(latitude: vessel.latitude, longitude: vessel.longitude)
+                        cameraPosition = .region(MKCoordinateRegion(center: coordinate, latitudinalMeters: 25000, longitudinalMeters: 25000))
+                    case .crewMember(let crewMember):
+                        if let lat = crewMember.latitude, let lng = crewMember.longitude {
+                            let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lng)
+                            cameraPosition = .region(MKCoordinateRegion(center: coordinate, latitudinalMeters: 10000, longitudinalMeters: 10000))
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -60,10 +75,11 @@ struct SeaGuardianMap: View {
 #Preview {
     struct SeaGuardianMapPreviewWrapper: View {
         @State private var selectedAnnotation: AnnotationType? = nil
+        @State private var focusedAnnotation: AnnotationType? = nil
         let vessels = VesselsModel.preview
 
         var body: some View {
-            SeaGuardianMap(selectedAnnotation: $selectedAnnotation)
+            SeaGuardianMap(selectedAnnotation: $selectedAnnotation, focusedAnnotation: $focusedAnnotation)
                 .environment(vessels)
         }
     }
