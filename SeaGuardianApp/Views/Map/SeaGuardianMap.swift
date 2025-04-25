@@ -3,14 +3,14 @@ import MapKit
 
 enum AnnotationType: Identifiable, Equatable {
     case vessel(Vessel)
-    case crew(CrewMember)
+    case crewMember(CrewMember)
 
     var id: String {
         switch self {
         case .vessel(let vessel):
             return "vessel_\(vessel.id)"
-        case .crew(let crew):
-            return "crew_\(crew.id)"
+        case .crewMember(let crewMember):
+            return "crew_\(crewMember.id)"
         }
     }
     

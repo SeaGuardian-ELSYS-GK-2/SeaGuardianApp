@@ -4,7 +4,7 @@ import SwiftUI
 struct SideMenu: View {
     var onVesselTap: (Vessel) -> Void
     var onClose: () -> Void
-    var onCrewListRowTap: (CrewMember) -> Void = { _ in }
+    var onCrewListRowTap: (CrewMember) -> Void
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -32,6 +32,6 @@ struct SideMenu: View {
 
 
 #Preview {
-    SideMenu(onVesselTap: { _ in }, onClose: {})
+    SideMenu(onVesselTap: { _ in }, onClose: {}, onCrewListRowTap: { _ in })
         .environment(VesselsModel.preview)
 }

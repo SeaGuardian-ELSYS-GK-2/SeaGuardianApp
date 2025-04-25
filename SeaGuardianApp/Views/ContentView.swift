@@ -44,6 +44,9 @@ struct ContentView: View {
                     withAnimation {
                         isMenuOpen = false
                     }
+                },
+                onCrewListRowTap: { crewMember in
+                    selectedAnnotation = .crewMember(crewMember)
                 }
             )
             .frame(width: 300)
@@ -55,8 +58,8 @@ struct ContentView: View {
 
 #Preview {
     let settings = SettingsModel()
-    let vessels = VesselsModel()
-//    let vessels = VesselsModel.preview
+//    let vessels = VesselsModel()
+    let vessels = VesselsModel.preview
     let webSocket = WebSocketManager(settings: settings, vessels: vessels)
     ContentView()
         .environment(settings)

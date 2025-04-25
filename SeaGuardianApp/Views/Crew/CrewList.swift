@@ -33,7 +33,9 @@ struct CrewList: View {
                         Section(header: Text("Vessel \(vessel.id)")) {
                             let crewList = sortedCrew(for: vessel)
                             ForEach(crewList) { crewMember in
-                                CrewMemberRow(crewMember: crewMember)
+                                CrewMemberRow(crewMember: crewMember) {
+                                    onRowTap(crewMember)
+                                }
                             }
                         }
                     }

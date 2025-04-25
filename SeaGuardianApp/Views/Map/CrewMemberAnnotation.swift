@@ -6,13 +6,13 @@ struct CrewMemberAnnotationView: View {
     @Binding var selectedAnnotation: AnnotationType?
 
     var isSelected: Bool {
-        selectedAnnotation == .crew(crewMember)
+        selectedAnnotation == .crewMember(crewMember)
     }
 
     var body: some View {
         ZStack {
             Button(action: {
-                selectedAnnotation = isSelected ? nil : .crew(crewMember)
+                selectedAnnotation = isSelected ? nil : .crewMember(crewMember)
             }) {
                 Image(systemName: "figure.pool.swim")
                     .resizable()

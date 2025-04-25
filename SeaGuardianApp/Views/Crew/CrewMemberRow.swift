@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CrewMemberRow: View {
     @Bindable var crewMember: CrewMember
+    var onTap: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -41,6 +42,10 @@ struct CrewMemberRow: View {
 
         }
         .padding(.vertical, 4)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onTap()
+        }
     }
 
     func decodeBase64Image(_ base64: String) -> Image? {
