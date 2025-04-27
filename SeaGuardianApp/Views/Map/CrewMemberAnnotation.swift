@@ -16,7 +16,7 @@ struct CrewMemberAnnotationView: View {
             }) {
                 Image(systemName: "figure.pool.swim")
                     .resizable()
-                    .frame(width: 32, height: 32)
+                    .frame(width: 44, height: 32)
                     .foregroundColor(.red)
             }
             .buttonStyle(.plain)
