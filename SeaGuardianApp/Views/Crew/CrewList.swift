@@ -23,11 +23,15 @@ struct CrewList: View {
         VStack {
             Toggle("Show only overboard", isOn: $showOnlyOverboard)
                 .padding(.horizontal)
+                .onChange(of: showOnlyOverboard) {
+                    withAnimation(.easeInOut(duration: 0.3)) {}
+                }
 
             List {
                 if showOnlyOverboard && sortedVessels.isEmpty {
                     Text("No crew members are overboard 🎉")
                         .foregroundStyle(.secondary)
+                        .transition(.opacity)
                 } else {
                     ForEach(sortedVessels) { vessel in
                         Section(header: Text("Vessel \(vessel.id)")) {
@@ -36,11 +40,13 @@ struct CrewList: View {
                                 CrewMemberRow(crewMember: crewMember) {
                                     onRowTap(crewMember)
                                 }
+                                .transition(.opacity)
                             }
                         }
                     }
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: sortedVessels)
         }
     }
 }
